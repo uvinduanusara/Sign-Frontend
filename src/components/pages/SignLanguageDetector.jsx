@@ -307,9 +307,9 @@ const SignLanguageRecognition = () => {
   };
 
   const getConfidenceColor = (conf) => {
-    if (conf >= 0.8) return 'text-green-600';
-    if (conf >= 0.6) return 'text-yellow-600';
-    return 'text-red-600';
+    if (conf >= 0.8) return 'text-gray-800';
+    if (conf >= 0.6) return 'text-gray-600';
+    return 'text-gray-400';
   };
 
   const getSequenceProgress = () => {
@@ -324,20 +324,20 @@ const SignLanguageRecognition = () => {
   const selectedCamera = cameras.find(cam => cam.deviceId === selectedCameraId);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 p-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-white p-4">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Sign Language Recognition
           </h1>
-          <p className="text-blue-200">Real-time LSTM-based sign language detection</p>
+          <p className="text-gray-600">Real-time LSTM-based sign language detection</p>
         </div>
 
         {/* Connection Status */}
         <div className="flex justify-center mb-6">
           <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
-            isConnected ? 'bg-green-600' : 'bg-red-600'
+            isConnected ? 'bg-gray-800' : 'bg-gray-600'
           } text-white`}>
             {isConnected ? <Wifi size={20} /> : <WifiOff size={20} />}
             {isConnected ? 'Connected' : 'Disconnected'}
@@ -347,13 +347,13 @@ const SignLanguageRecognition = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Camera Section */}
           <div className="lg:col-span-2">
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200 shadow-xl">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-white">Live Camera</h2>
+                <h2 className="text-2xl font-bold text-gray-900">Live Camera</h2>
                 <div className="flex gap-2 items-center">
-                  <span className="text-sm text-blue-200">FPS: {fps}</span>
+                  <span className="text-sm text-gray-600">FPS: {fps}</span>
                   {isProcessing && (
-                    <div className="flex items-center gap-1 text-yellow-400">
+                    <div className="flex items-center gap-1 text-gray-700">
                       <Activity size={16} className="animate-pulse" />
                       <span className="text-xs">Processing</span>
                     </div>
@@ -363,7 +363,7 @@ const SignLanguageRecognition = () => {
                     <div className="relative">
                       <button
                         onClick={() => setShowCameraMenu(!showCameraMenu)}
-                        className="flex items-center gap-2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-all"
+                        className="flex items-center gap-2 px-3 py-1 bg-gray-800 hover:bg-black text-white rounded-lg text-sm transition-all"
                       >
                         <Video size={16} />
                         {selectedCamera ? getCameraLabel(selectedCamera) : 'Select Camera'}
@@ -371,13 +371,13 @@ const SignLanguageRecognition = () => {
                       </button>
                       
                       {showCameraMenu && (
-                        <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-lg rounded-lg shadow-xl border border-white/20 min-w-48 z-10">
+                        <div className="absolute top-full right-0 mt-2 bg-white backdrop-blur-lg rounded-lg shadow-xl border border-gray-200 min-w-48 z-10">
                           {cameras.map((camera) => (
                             <button
                               key={camera.deviceId}
                               onClick={() => switchCamera(camera.deviceId)}
-                              className={`w-full text-left px-4 py-2 hover:bg-blue-100 transition-colors ${
-                                selectedCameraId === camera.deviceId ? 'bg-blue-200' : ''
+                              className={`w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors ${
+                                selectedCameraId === camera.deviceId ? 'bg-gray-200' : ''
                               } first:rounded-t-lg last:rounded-b-lg`}
                             >
                               <div className="text-sm font-medium text-gray-800">
@@ -433,8 +433,8 @@ const SignLanguageRecognition = () => {
                   disabled={!isConnected}
                   className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all ${
                     isStreaming
-                      ? 'bg-red-600 hover:bg-red-700 text-white'
-                      : 'bg-green-600 hover:bg-green-700 text-white'
+                      ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                      : 'bg-gray-800 hover:bg-black text-white'
                   } ${!isConnected ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
                   {isStreaming ? <Square size={20} /> : <Camera size={20} />}
@@ -444,7 +444,7 @@ const SignLanguageRecognition = () => {
                 <button
                   onClick={resetSequence}
                   disabled={!isConnected}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-medium transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-800 text-white rounded-xl font-medium transition-all disabled:opacity-50"
                 >
                   <RotateCcw size={20} />
                   Reset
@@ -453,7 +453,7 @@ const SignLanguageRecognition = () => {
                 <button
                   onClick={debugFrame}
                   disabled={!isConnected || !isStreaming || isProcessing}
-                  className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-medium transition-all disabled:opacity-50"
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white rounded-xl font-medium transition-all disabled:opacity-50"
                 >
                   <Info size={20} />
                   Debug
@@ -465,12 +465,12 @@ const SignLanguageRecognition = () => {
           {/* Results Section */}
           <div className="space-y-6">
             {/* Prediction Result */}
-            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-              <h3 className="text-xl font-bold text-white mb-4">Prediction</h3>
+            <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200 shadow-xl">
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Prediction</h3>
               
               {prediction ? (
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-white mb-2">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
                     {prediction}
                   </div>
                   <div className={`text-lg font-medium ${getConfidenceColor(confidence)}`}>
@@ -478,20 +478,20 @@ const SignLanguageRecognition = () => {
                   </div>
                 </div>
               ) : (
-                <div className="text-center text-gray-400">
+                <div className="text-center text-gray-500">
                   No prediction yet
                 </div>
               )}
 
               {/* Sequence Progress */}
               <div className="mt-4">
-                <div className="flex justify-between text-sm text-blue-200 mb-1">
+                <div className="flex justify-between text-sm text-gray-600 mb-1">
                   <span>Sequence Progress</span>
                   <span>{sequenceLength}/{modelInfo?.sequence_length || 30}</span>
                 </div>
-                <div className="w-full bg-gray-700 rounded-full h-2">
+                <div className="w-full bg-gray-300 rounded-full h-2">
                   <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-gray-800 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${getSequenceProgress()}%` }}
                   />
                 </div>
@@ -500,22 +500,22 @@ const SignLanguageRecognition = () => {
 
             {/* All Predictions */}
             {Object.keys(allPredictions).length > 0 && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-                <h3 className="text-xl font-bold text-white mb-4">All Predictions</h3>
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">All Predictions</h3>
                 <div className="space-y-2">
                   {Object.entries(allPredictions)
                     .sort(([,a], [,b]) => b - a)
                     .map(([className, conf]) => (
                       <div key={className} className="flex justify-between items-center">
-                        <span className="text-white">{className}</span>
+                        <span className="text-gray-900">{className}</span>
                         <div className="flex items-center gap-2">
-                          <div className="w-20 bg-gray-700 rounded-full h-2">
+                          <div className="w-20 bg-gray-300 rounded-full h-2">
                             <div 
-                              className="bg-blue-600 h-2 rounded-full"
+                              className="bg-gray-800 h-2 rounded-full"
                               style={{ width: `${conf * 100}%` }}
                             />
                           </div>
-                          <span className="text-sm text-blue-200 w-12">
+                          <span className="text-sm text-gray-600 w-12">
                             {(conf * 100).toFixed(0)}%
                           </span>
                         </div>
@@ -527,24 +527,24 @@ const SignLanguageRecognition = () => {
 
             {/* Model Info */}
             {modelInfo && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-                <h3 className="text-xl font-bold text-white mb-4">Model Info</h3>
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Model Info</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Sequence Length:</span>
-                    <span className="text-white">{modelInfo.sequence_length}</span>
+                    <span className="text-gray-600">Sequence Length:</span>
+                    <span className="text-gray-900">{modelInfo.sequence_length}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Features:</span>
-                    <span className="text-white">{modelInfo.feature_count}</span>
+                    <span className="text-gray-600">Features:</span>
+                    <span className="text-gray-900">{modelInfo.feature_count}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Classes:</span>
-                    <span className="text-white">{modelInfo.num_classes}</span>
+                    <span className="text-gray-600">Classes:</span>
+                    <span className="text-gray-900">{modelInfo.num_classes}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">LSTM Layers:</span>
-                    <span className="text-white">{modelInfo.lstm_layers?.length || 0}</span>
+                    <span className="text-gray-600">LSTM Layers:</span>
+                    <span className="text-gray-900">{modelInfo.lstm_layers?.length || 0}</span>
                   </div>
                 </div>
               </div>
@@ -552,30 +552,30 @@ const SignLanguageRecognition = () => {
 
             {/* Debug Info */}
             {debugInfo && (
-              <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 border border-white/20">
-                <h3 className="text-xl font-bold text-white mb-4">Debug Info</h3>
+              <div className="bg-white/80 backdrop-blur-lg rounded-2xl p-6 border border-gray-200 shadow-xl">
+                <h3 className="text-xl font-bold text-gray-900 mb-4">Debug Info</h3>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Pose Detected:</span>
-                    <span className={debugInfo.detection_info?.pose_detected ? 'text-green-400' : 'text-red-400'}>
+                    <span className="text-gray-600">Pose Detected:</span>
+                    <span className={debugInfo.detection_info?.pose_detected ? 'text-gray-800' : 'text-gray-500'}>
                       {debugInfo.detection_info?.pose_detected ? 'Yes' : 'No'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Left Hand:</span>
-                    <span className={debugInfo.detection_info?.left_hand_detected ? 'text-green-400' : 'text-red-400'}>
+                    <span className="text-gray-600">Left Hand:</span>
+                    <span className={debugInfo.detection_info?.left_hand_detected ? 'text-gray-800' : 'text-gray-500'}>
                       {debugInfo.detection_info?.left_hand_detected ? 'Yes' : 'No'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Right Hand:</span>
-                    <span className={debugInfo.detection_info?.right_hand_detected ? 'text-green-400' : 'text-red-400'}>
+                    <span className="text-gray-600">Right Hand:</span>
+                    <span className={debugInfo.detection_info?.right_hand_detected ? 'text-gray-800' : 'text-gray-500'}>
                       {debugInfo.detection_info?.right_hand_detected ? 'Yes' : 'No'}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-blue-200">Non-zero Features:</span>
-                    <span className="text-white">{debugInfo.features_non_zero}</span>
+                    <span className="text-gray-600">Non-zero Features:</span>
+                    <span className="text-gray-900">{debugInfo.features_non_zero}</span>
                   </div>
                 </div>
               </div>
@@ -585,7 +585,7 @@ const SignLanguageRecognition = () => {
 
         {/* Error Display */}
         {error && (
-          <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded-lg shadow-lg">
+          <div className="fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg shadow-lg">
             {error}
           </div>
         )}

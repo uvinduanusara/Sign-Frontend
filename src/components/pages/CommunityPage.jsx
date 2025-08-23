@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { MessageCircle, Star, Trophy, Users, Heart, MessageSquare, TrendingUp, ChevronRight } from 'lucide-react';
 
 const CommunityPage = () => {
-  // Sample discussion data
   const discussions = [
     {
       id: 1,
@@ -267,7 +266,6 @@ const CommunityPage = () => {
                         {learner.level}
                       </Badge>
                     </div>
-                    {/* <Progress value={learner.progress} className="h-1 mt-1" /> */}
                   </div>
                 </div>
               ))}
