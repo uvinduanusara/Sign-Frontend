@@ -5,6 +5,7 @@ import LearnPage from "../src/components/pages/LearnPage";
 import PracticePage from "../src/components/pages/PracticePage";
 import CommunityPage from "../src/components/pages/CommunityPage";
 import Home from "./components/pages/Home";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -18,6 +19,8 @@ function App() {
         <Route path="/practice" element={<PracticePage />} />
         <Route path="/community" element={<CommunityPage />} />
       </Routes>
+
+      <Footer/>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom"
 import { Badge } from "./ui/badge"
 import { Avatar, AvatarFallback } from "./ui/avatar"
-import { Crown, BookOpen, Camera, Trophy, Users, Sparkles } from "lucide-react"
+import { Crown, BookOpen, Camera, Trophy, Users, Sparkles, Home } from "lucide-react"
 
 const Header = () => {
   const location = useLocation()
@@ -9,16 +9,16 @@ const Header = () => {
 
   return (
     <header className="bg-gradient-to-r from-white/95 via-gray-50/90 to-gray-100/95 backdrop-blur-xl border-b border-gray-200/50 shadow-lg shadow-gray-100/50 sticky top-0 z-50">
-      <div className="container mx-auto px-6 py-5">
+      <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
           <div className="flex items-center space-x-4 group">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-400 to-black rounded-xl blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+              <div className="absolute inset-0 rounded-xl blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
               <img
                 src="/Sign.svg"
                 alt="SignLearn AI Logo"
-                className="relative w-12 h-12 object-contain drop-shadow-sm"
+                className="relative w-18 h-18 object-contain drop-shadow-sm"
               />
             </div>
             <div className="space-y-1">
@@ -39,9 +39,8 @@ const Header = () => {
                   : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
               }`}
             >
-              <span className="relative">
+              <Home className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
                 Home
-              </span>
             </Link>
 
             <Link
