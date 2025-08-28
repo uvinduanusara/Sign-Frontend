@@ -1,247 +1,291 @@
 /* eslint-disable no-unused-vars */
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { Trophy, Star, Zap, Clock, Heart, Award, CheckCircle, RotateCcw } from 'lucide-react';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import {
+  Trophy,
+  Star,
+  Clock,
+  Award,
+  Target,
+  X,
+} from "lucide-react";
+import apiService from "./services/api";
 
 const PracticePage = () => {
-  const [activeChallenge, setActiveChallenge] = useState(null);
-  const [streakDays, setStreakDays] = useState(7);
-  const [practiceStats, setPracticeStats] = useState({
-    totalPractices: 24,
-    accuracy: 87,
-    speed: 65,
+  const [selectedCategory, setSelectedCategory] = useState(null); // Track which category is selected for modal
+  const [practiceMaterials, setPracticeMaterials] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [filters, setFilters] = useState({
+    category: '',
+    difficulty: '',
+    search: ''
   });
 
-  const challenges = [
-    {
-      id: 1,
-      title: "Quick Quiz",
-      description: "Test your knowledge with 5 random signs",
-      icon: Star,
-      iconColor: "text-blue-600",
-      bgColor: "bg-blue-100",
-      stats: {
-        attempts: 12,
-        bestScore: "4/5",
-        lastScore: "3/5"
-      }
-    },
-    {
-      id: 2,
-      title: "Speed Challenge",
-      description: "Recognize signs against the clock",
-      icon: Zap,
-      iconColor: "text-green-600",
-      bgColor: "bg-green-100",
-      stats: {
-        attempts: 8,
-        bestScore: "12 signs/min",
-        lastScore: "9 signs/min"
-      }
-    },
-    {
-      id: 3,
-      title: "Daily Practice",
-      description: "Maintain your learning streak",
-      icon: Clock,
-      iconColor: "text-purple-600",
-      bgColor: "bg-purple-100",
-      stats: {
-        attempts: streakDays,
-        bestScore: `${streakDays} day streak`,
-        lastScore: "Completed today"
-      }
-    },
-    {
-      id: 4,
-      title: "Perfect Recall",
-      description: "Achieve 100% accuracy",
-      icon: CheckCircle,
-      iconColor: "text-amber-600",
-      bgColor: "bg-amber-100",
-      stats: {
-        attempts: 15,
-        bestScore: "98%",
-        lastScore: "92%"
-      }
-    },
-    {
-      id: 5,
-      title: "Marathon Mode",
-      description: "Practice 25 signs without breaks",
-      icon: Award,
-      iconColor: "text-red-600",
-      bgColor: "bg-red-100",
-      stats: {
-        attempts: 3,
-        bestScore: "18 signs",
-        lastScore: "12 signs"
-      }
-    },
-    {
-      id: 6,
-      title: "Favorite Signs",
-      description: "Practice your saved signs",
-      icon: Heart,
-      iconColor: "text-pink-600",
-      bgColor: "bg-pink-100",
-      stats: {
-        attempts: 5,
-        bestScore: "9 signs",
-        lastScore: "7 signs"
-      }
-    }
-  ];
+  useEffect(() => {
+    loadPracticeMaterials();
+  }, []);
 
-  const startChallenge = (id) => {
-    setActiveChallenge(id);
-    // In a real app, you would start the selected challenge here
-    console.log(`Starting challenge ${id}`);
+  const loadPracticeMaterials = async () => {
+    try {
+      setLoading(true);
+      const response = await apiService.getPublicPracticeMaterials(filters);
+      setPracticeMaterials(response.data || []);
+      setError('');
+    } catch (error) {
+      console.error('Failed to load practice materials:', error);
+      setError('Failed to load practice materials');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openCategoryModal = (category) => {
+    setSelectedCategory(category);
+  };
+
+  const closeCategoryModal = () => {
+    setSelectedCategory(null);
+  };
+
+  const getDifficultyColor = (difficulty) => {
+    switch (difficulty) {
+      case 'beginner': return 'bg-green-500';
+      case 'intermediate': return 'bg-yellow-500';
+      case 'advanced': return 'bg-red-500';
+      default: return 'bg-gray-500';
+    }
+  };
+
+  const getDifficultyIcon = (difficulty) => {
+    switch (difficulty) {
+      case 'beginner': return <Star className="w-4 h-4" />;
+      case 'intermediate': return <Trophy className="w-4 h-4" />;
+      case 'advanced': return <Award className="w-4 h-4" />;
+      default: return <Target className="w-4 h-4" />;
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Card */}
-      <Card className="border-0 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-3">
-            <Trophy className="w-6 h-6" />
-            <span>Practice Zone</span>
-          </CardTitle>
-          <CardDescription className="text-blue-100">
-            Improve your skills with interactive challenges and track your progress
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold">{practiceStats.totalPractices}</div>
-              <div className="text-sm text-blue-100">Total Practices</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{practiceStats.accuracy}%</div>
-              <div className="text-sm text-blue-100">Average Accuracy</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold">{practiceStats.speed}%</div>
-              <div className="text-sm text-blue-100">Speed Score</div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 p-6">
+      <div className="space-y-6">
+        <Card className="border border-gray-200 bg-white shadow-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-3">
+              <Target className="w-6 h-6" />
+              <span>Practice Materials</span>
+            </CardTitle>
+            <CardDescription>
+              Practice sign language with interactive exercises and challenges
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
-      {/* Current Streak Card */}
-      <Card className="border-0 bg-white/80 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${streakDays > 0 ? 'bg-green-500 animate-pulse' : 'bg-gray-300'}`} />
-            <span>Current Streak</span>
-          </CardTitle>
-          <CardDescription>
-            {streakDays > 0 
-              ? `You're on a ${streakDays}-day practice streak! Keep it up!` 
-              : "Start practicing to begin your streak"}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-4">
-            <div className="text-4xl font-bold text-green-600">{streakDays}</div>
-            <div className="flex-1">
-              <div className="flex justify-between text-sm mb-1">
-                <span>Days</span>
-                <span>{Math.min(streakDays * 10, 100)}%</span>
-              </div>
-              <Progress value={Math.min(streakDays * 10, 100)} className="h-2" />
-              <div className="text-xs text-gray-500 mt-1">
-                {streakDays > 0 
-                  ? `${7 - streakDays} more days until next milestone` 
-                  : "Practice today to start your streak"}
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Challenges Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {challenges.map((challenge) => (
-          <Card 
-            key={challenge.id} 
-            className={`border-0 bg-white/80 backdrop-blur-sm hover:shadow-md transition-shadow ${
-              activeChallenge === challenge.id ? 'ring-2 ring-blue-500' : ''
-            }`}
-          >
-            <CardHeader className="pb-3">
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 ${challenge.bgColor} rounded-full flex items-center justify-center`}>
-                  <challenge.icon className={`w-5 h-5 ${challenge.iconColor}`} />
-                </div>
-                <div>
-                  <CardTitle className="text-lg">{challenge.title}</CardTitle>
-                  <CardDescription>{challenge.description}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3">
-                <div className="grid grid-cols-3 gap-2 text-center text-sm">
-                  <div>
-                    <div className="font-medium">{challenge.stats.attempts}</div>
-                    <div className="text-xs text-gray-500">Attempts</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">{challenge.stats.bestScore}</div>
-                    <div className="text-xs text-gray-500">Best</div>
-                  </div>
-                  <div>
-                    <div className="font-medium">{challenge.stats.lastScore}</div>
-                    <div className="text-xs text-gray-500">Last</div>
-                  </div>
-                </div>
-                <Button 
-                  onClick={() => startChallenge(challenge.id)}
-                  className="w-full"
-                  variant={activeChallenge === challenge.id ? "default" : "outline"}
-                >
-                  {activeChallenge === challenge.id ? "Continue Challenge" : "Start Challenge"}
-                </Button>
-              </div>
+        {error && (
+          <Card className="border border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <p className="text-red-600">{error}</p>
             </CardContent>
           </Card>
-        ))}
+        )}
+
+        {loading && (
+          <Card className="border border-gray-200 bg-white">
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-600">Loading practice materials...</p>
+            </CardContent>
+          </Card>
+        )}
+
+        {!loading && practiceMaterials.length === 0 && (
+          <Card className="border border-gray-200 bg-white">
+            <CardContent className="p-6 text-center">
+              <p className="text-gray-600">No practice materials available yet.</p>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {practiceMaterials.map((material) => (
+            <Card
+              key={material._id}
+              className="hover:shadow-lg transition-all duration-300 border border-gray-200 bg-white shadow-md hover:border-gray-900 hover:scale-105"
+            >
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 ${getDifficultyColor(material.difficulty)} rounded-full flex items-center justify-center`}>
+                      {getDifficultyIcon(material.difficulty)}
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{material.practiceName}</CardTitle>
+                      <CardDescription>{material.description}</CardDescription>
+                    </div>
+                  </div>
+                  <Badge variant="secondary">{material.category}</Badge>
+                </div>
+                <div className="flex items-center gap-4 mt-2">
+                  <div className="flex items-center gap-1">
+                    <Clock className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">{material.estimatedTime}min</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Trophy className="w-4 h-4 text-gray-500" />
+                    <span className="text-sm text-gray-600">{material.points}pts</span>
+                  </div>
+                  <Badge 
+                    className={`text-white ${getDifficultyColor(material.difficulty)}`}
+                  >
+                    {material.difficulty}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {material.signImages?.slice(0, 2).map((signImage, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-50 rounded-lg p-2 text-center"
+                      >
+                        <div className="bg-gray-200 h-16 rounded-md flex items-center justify-center mb-1 overflow-hidden">
+                          <img 
+                            src={`http://localhost:5001${signImage.imageUrl}`}
+                            alt={signImage.signName}
+                            className="h-full w-full object-cover rounded"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.parentElement.innerHTML = `<span class="text-gray-500 text-sm">${signImage.signName}</span>`;
+                            }}
+                          />
+                        </div>
+                        <div className="font-medium text-sm">
+                          {signImage.signName}
+                        </div>
+                      </div>
+                    ))}
+                    {material.signImages?.length === 0 && material.signs?.slice(0, 2).map((sign, index) => (
+                      <div
+                        key={index}
+                        className="bg-gray-50 rounded-lg p-2 text-center"
+                      >
+                        <div className="bg-gray-200 h-16 rounded-md flex items-center justify-center mb-1">
+                          <span className="text-gray-500 text-sm">
+                            No Image
+                          </span>
+                        </div>
+                        <div className="font-medium text-sm">
+                          {sign}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="text-xs text-gray-500 mb-2">
+                    {material.instructions && (
+                      <p><strong>Instructions:</strong> {material.instructions}</p>
+                    )}
+                  </div>
+                  <Button
+                    className="w-full bg-gray-900 hover:bg-black text-white"
+                    variant="outline"
+                    onClick={() => openCategoryModal(material)}
+                  >
+                    Practice {material.signs?.length || 0} Signs
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      {/* Active Challenge Panel (would appear when a challenge is active) */}
-      {activeChallenge && (
-        <Card className="border-0 bg-white/80 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center justify-between">
-              <span>Active Challenge: {challenges.find(c => c.id === activeChallenge).title}</span>
-              <Button variant="ghost" size="sm" onClick={() => setActiveChallenge(null)}>
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Exit
+      {/* Category Modal */}
+      {selectedCategory && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
+              <div>
+                <h3 className="text-xl font-bold">{selectedCategory.practiceName}</h3>
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="secondary">{selectedCategory.category}</Badge>
+                  <Badge className={`text-white ${getDifficultyColor(selectedCategory.difficulty)}`}>
+                    {selectedCategory.difficulty}
+                  </Badge>
+                  <span className="text-sm text-gray-500">
+                    {selectedCategory.estimatedTime}min • {selectedCategory.points}pts
+                  </span>
+                </div>
+              </div>
+              <Button variant="ghost" onClick={closeCategoryModal}>
+                <X className="w-5 h-5" />
               </Button>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center py-8">
-            <div className="max-w-md mx-auto">
-              <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Trophy className="w-12 h-12 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-bold mb-2">Challenge In Progress</h3>
-              <p className="text-gray-600 mb-6">
-                In a real application, this would show the interactive challenge interface for {challenges.find(c => c.id === activeChallenge).title}.
-              </p>
-              <div className="flex gap-3 justify-center">
-                <Button variant="outline">Skip</Button>
-                <Button>Submit Answer</Button>
-              </div>
             </div>
-          </CardContent>
-        </Card>
+            <div className="p-6">
+              <p className="text-gray-600 mb-4">
+                {selectedCategory.description}
+              </p>
+              {selectedCategory.instructions && (
+                <p className="text-sm text-gray-600 mb-6 p-3 bg-blue-50 rounded-lg">
+                  <strong>Instructions:</strong> {selectedCategory.instructions}
+                </p>
+              )}
+              
+              {selectedCategory.signImages && selectedCategory.signImages.length > 0 ? (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {selectedCategory.signImages.map((signImage, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 text-center"
+                    >
+                      <div className="bg-gray-200 h-24 rounded-md flex items-center justify-center mb-3 overflow-hidden">
+                        <img 
+                          src={`http://localhost:5001${signImage.imageUrl}`}
+                          alt={signImage.signName}
+                          className="h-full w-full object-cover rounded"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = `<span class="text-gray-500">${signImage.signName}</span>`;
+                          }}
+                        />
+                      </div>
+                      <div className="font-bold text-lg mb-1">
+                        {signImage.signName}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                  {selectedCategory.signs?.map((sign, index) => (
+                    <div
+                      key={index}
+                      className="bg-gray-50 rounded-lg p-4 text-center"
+                    >
+                      <div className="bg-gray-200 h-24 rounded-md flex items-center justify-center mb-3">
+                        <span className="text-gray-500">No Image</span>
+                      </div>
+                      <div className="font-bold text-lg mb-1">
+                        {sign}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+            </div>
+          </div>
+        </div>
       )}
+
     </div>
   );
 };
