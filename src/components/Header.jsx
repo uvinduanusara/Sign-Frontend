@@ -7,11 +7,11 @@ import {
   BookOpen,
   Camera,
   Trophy,
-  Users,
   Sparkles,
   Home,
   LogIn,
   LogOut,
+  Star,
 } from "lucide-react";
 import { useAuth } from "./pages/auth/AuthContext";
 
@@ -19,7 +19,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const { user, isAuthenticated, isProMember, logout, refreshUserData } = useAuth();
+  const { user, isAuthenticated, isProMember, logout, refreshUserData, isAdmin } = useAuth();
 
   // Refresh user data when component mounts to ensure pro status is current
   React.useEffect(() => {
@@ -34,7 +34,7 @@ const Header = () => {
 
   const handleSignOut = () => {
     logout();
-    navigate("/");
+    navigate("/login");
   };
 
   // Get user's first initial for the avatar
@@ -58,7 +58,14 @@ const Header = () => {
       <div className="container mx-auto px-6 py-3">
         <div className="flex items-center justify-between">
           {/* Logo Section */}
-          <div className="flex items-center space-x-4 group">
+          <div 
+            className={`flex items-center space-x-4 group ${isAdmin() ? '' : 'cursor-pointer'}`}
+            onClick={() => {
+              if (!isAdmin()) {
+                navigate("/");
+              }
+            }}
+          >
             <div className="relative">
               <div className="absolute inset-0 rounded-xl blur-sm opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
               <img
@@ -79,66 +86,90 @@ const Header = () => {
 
           {/* Navigation Items */}
           <nav className="flex items-center space-x-2">
-            <Link
-              to="/"
-              className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                currentPath === "/home" || currentPath === "/"
-                  ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
-              }`}
-            >
-              <Home className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Home
-            </Link>
-
-            <Link
-              to="/detect"
-              className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                currentPath === "/detect"
-                  ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
-              }`}
-            >
-              <Camera className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Detect
-            </Link>
-
-            {isProMember() && (
+            {/* Hide Home link for admins and instructors */}
+            {!isAdmin() && (
               <Link
-                to="/learn"
+                to="/"
                 className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                  currentPath === "/learn"
+                  currentPath === "/home" || currentPath === "/"
                     ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
                     : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
                 }`}
               >
-                <BookOpen className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                Learn
+                <Home className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                Home
               </Link>
             )}
 
-            <Link
-              to="/practice"
-              className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                currentPath === "/practice"
-                  ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
-                  : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
-              }`}
-            >
-              <Trophy className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Practice
-            </Link>
+            {/* Hide user-specific links for admins */}
+            {!isAdmin() && (
+              <>
+                <Link
+                  to="/detect"
+                  className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    currentPath === "/detect"
+                      ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
+                  }`}
+                >
+                  <Camera className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                  Detect
+                </Link>
+
+                {isProMember() && (
+                  <Link
+                    to="/learn"
+                    className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                      currentPath === "/learn"
+                        ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
+                        : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
+                    }`}
+                  >
+                    <BookOpen className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                    Learn
+                  </Link>
+                )}
+
+                <Link
+                  to="/practice"
+                  className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    currentPath === "/practice"
+                      ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
+                      : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
+                  }`}
+                >
+                  <Trophy className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                  Practice
+                </Link>
+              </>
+            )}
+
+            {/* Show Admin link for admins */}
+            {isAdmin() && (
+              <Link
+                to="/admin"
+                className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                  currentPath.startsWith("/admin")
+                    ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
+                    : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
+                }`}
+              >
+                <Sparkles className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+                Admin
+              </Link>
+            )}
+
 
             <Link
-              to="/community"
+              to="/reviews"
               className={`group flex items-center px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
-                currentPath === "/community"
+                currentPath === "/reviews"
                   ? "text-white bg-gradient-to-r from-gray-800 to-black shadow-lg shadow-gray-500/25 border border-gray-500/20"
                   : "text-gray-700 hover:text-gray-900 hover:bg-white/60 hover:shadow-md hover:shadow-gray-100/50 border border-transparent hover:border-gray-200/50"
               }`}
             >
-              <Users className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-              Community
+              <Star className="w-4 h-4 mr-2 group-hover:rotate-12 transition-transform duration-300" />
+              Reviews
             </Link>
           </nav>
 

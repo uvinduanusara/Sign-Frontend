@@ -31,9 +31,9 @@ class ApiService {
     console.log(`API Request to: ${url}`);
     console.log('Request options:', options);
 
-    // Always include Authorization header if token exists
+    // Always include Authorization header if token exists (unless explicitly disabled)
     const headers = {};
-    if (token) {
+    if (token && !options.skipAuth) {
       headers["Authorization"] = `Bearer ${token}`;
       console.log('Adding auth token to request');
     }
@@ -234,7 +234,40 @@ class ApiService {
     });
   }
 
-  // Reviews methods
+  // Public Reviews methods (for users)
+  async getPublicReviews(params = {}) {
+    const queryString = new URLSearchParams(params).toString();
+    return await this.request(
+      `/reviews${queryString ? `?${queryString}` : ""}`,
+      { skipAuth: true } // Public endpoint - no authentication required
+    );
+  }
+
+  async createReview(reviewData) {
+    return await this.request("/reviews", {
+      method: "POST",
+      body: JSON.stringify(reviewData),
+    });
+  }
+
+  async getUserReview() {
+    return await this.request("/reviews/mine");
+  }
+
+  async updateUserReview(reviewData) {
+    return await this.request("/reviews/mine", {
+      method: "PUT",
+      body: JSON.stringify(reviewData),
+    });
+  }
+
+  async deleteUserReview() {
+    return await this.request("/reviews/mine", {
+      method: "DELETE",
+    });
+  }
+
+  // Admin Reviews methods
   async getReviews(params = {}) {
     const queryString = new URLSearchParams(params).toString();
     return await this.request(
@@ -311,6 +344,32 @@ class ApiService {
     return await this.request("/user/purchase-pro", {
       method: "POST",
       body: JSON.stringify(membershipData),
+    });
+  }
+
+  async createStripeCheckoutSession() {
+    return await this.request("/user/create-stripe-checkout", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
+  }
+
+  async verifyStripeSession(sessionId) {
+    return await this.request("/user/verify-stripe-session", {
+      method: "POST",
+      body: JSON.stringify({ sessionId }),
+    });
+  }
+
+  // User Profile Management
+  async getUserProfile() {
+    return await this.request("/user/profile");
+  }
+
+  async updateUserProfile(userId, profileData) {
+    return await this.request(`/user/profile`, {
+      method: "PUT",
+      body: JSON.stringify(profileData),
     });
   }
 }

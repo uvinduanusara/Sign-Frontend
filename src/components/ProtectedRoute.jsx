@@ -54,8 +54,8 @@ export default function ProtectedRoute({
     
     // Check blocked roles
     if (blockedRoles.length > 0 && blockedRoles.includes(userRole)) {
-      // Redirect based on user role
-      const redirectPath = userRole === "admin" ? "/admin" : "/";
+      // Redirect based on user role - admins and instructors go to admin panel
+      const redirectPath = (userRole === "admin" || userRole === "instructor") ? "/admin" : "/";
       return <Navigate to={redirectPath} replace />;
     }
   }
@@ -83,6 +83,14 @@ export function UserRoute({ children }) {
 export function PublicRoute({ children }) {
   return (
     <ProtectedRoute requireAuth={false}>
+      {children}
+    </ProtectedRoute>
+  );
+}
+
+export function PublicNonAdminRoute({ children }) {
+  return (
+    <ProtectedRoute requireAuth={false} blockedRoles={["admin", "instructor"]}>
       {children}
     </ProtectedRoute>
   );

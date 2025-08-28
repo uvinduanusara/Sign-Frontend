@@ -1,4 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useAuth } from "./auth/AuthContext";
+import apiService from "./services/api";
+import { toast } from "sonner";
 import {
   Camera,
   User,
@@ -24,21 +27,40 @@ import {
   Shield,
   Globe,
   ChevronRight,
+  Crown,
 } from "lucide-react";
 
 export default function UserProfilePage() {
+  const { user, isAuthenticated, refreshUserData, isProMember } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [loading, setLoading] = useState(false);
+  const [originalData, setOriginalData] = useState({});
 
   const [profileData, setProfileData] = useState({
-    firstName: "Sarah",
-    lastName: "Johnson",
-    email: "sarah.johnson@email.com",
-    phone: "+1 (555) 123-4567",
-    location: "New York, NY",
-    joinDate: "January 2024",
-    bio: "Passionate about making technology accessible. Learning sign language to better communicate with the deaf community.",
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    location: "",
+    bio: "",
   });
+
+  // Load user data when component mounts or user changes
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      const userData = {
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        bio: user.bio || "Welcome to Sign Language Learning! Update your bio to share your learning journey.",
+      };
+      setProfileData(userData);
+      setOriginalData(userData);
+    }
+  }, [user, isAuthenticated]);
 
   const stats = [
     { label: "Signs Learned", value: "147", icon: <BookOpen className="h-5 w-5" /> },
@@ -63,19 +85,52 @@ export default function UserProfilePage() {
     { title: "Master Signer", desc: "Learn 200+ signs", earned: false },
   ];
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Save logic would go here
+  const handleSave = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    try {
+      // Call API to update user profile
+      const response = await apiService.updateUserProfile(user.id, profileData);
+      
+      if (response.success) {
+        toast.success("Profile updated successfully!");
+        setIsEditing(false);
+        setOriginalData({ ...profileData });
+        
+        // Refresh user data in context
+        await refreshUserData();
+      } else {
+        toast.error(response.message || "Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancel = () => {
     setIsEditing(false);
-    // Reset changes logic would go here
+    setProfileData({ ...originalData });
   };
 
   const handleInputChange = (field, value) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
+
+  // Show loading if user data is not yet loaded
+  if (!user || !isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-800 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading profile...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
@@ -85,9 +140,17 @@ export default function UserProfilePage() {
           <div className="flex flex-col md:flex-row items-center gap-8">
             {/* Profile Picture */}
             <div className="relative">
-              <div className="w-32 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-2xl">
-                SJ
-              </div>
+              {user?.profile ? (
+                <img
+                  src={user.profile}
+                  alt="Profile"
+                  className="w-32 h-32 rounded-full object-cover shadow-2xl border-4 border-white"
+                />
+              ) : (
+                <div className="w-32 h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center text-4xl font-bold text-white shadow-2xl">
+                  {user?.firstName?.[0]}{user?.lastName?.[0]}
+                </div>
+              )}
               <button className="absolute bottom-2 right-2 bg-white text-gray-800 rounded-full p-2 shadow-lg hover:scale-105 transition-transform duration-200">
                 <Camera className="h-4 w-4" />
               </button>
@@ -95,22 +158,34 @@ export default function UserProfilePage() {
 
             {/* Profile Info */}
             <div className="text-center md:text-left flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {profileData.firstName} {profileData.lastName}
-              </h1>
-              <p className="text-xl text-gray-300 mb-4">Sign Language Learner</p>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-3xl md:text-4xl font-bold">
+                  {profileData.firstName} {profileData.lastName}
+                </h1>
+                {isProMember() && (
+                  <div className="bg-gradient-to-r from-yellow-400 to-yellow-500 text-black px-3 py-1 rounded-full flex items-center gap-1 text-sm font-semibold">
+                    <Crown className="h-4 w-4" />
+                    Pro Member
+                  </div>
+                )}
+              </div>
+              <p className="text-xl text-gray-300 mb-4">
+                {isProMember() ? "Pro Sign Language Learner" : "Sign Language Learner"}
+              </p>
               <div className="flex flex-col md:flex-row gap-4 text-gray-300">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   {profileData.email}
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-4 w-4" />
-                  {profileData.location}
-                </div>
+                {profileData.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    {profileData.location}
+                  </div>
+                )}
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
-                  Joined {profileData.joinDate}
+                  Joined {user?.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long' }) : 'Recently'}
                 </div>
               </div>
             </div>
@@ -129,10 +204,11 @@ export default function UserProfilePage() {
                 <div className="flex gap-2">
                   <button
                     onClick={handleSave}
-                    className="bg-white text-gray-800 hover:bg-gray-100 px-4 py-2 font-semibold rounded-full shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
+                    disabled={loading}
+                    className="bg-white text-gray-800 hover:bg-gray-100 disabled:opacity-50 px-4 py-2 font-semibold rounded-full shadow-lg hover:scale-105 transition-all duration-200 flex items-center gap-2"
                   >
                     <Save className="h-4 w-4" />
-                    Save
+                    {loading ? 'Saving...' : 'Save'}
                   </button>
                   <button
                     onClick={handleCancel}
@@ -404,21 +480,6 @@ export default function UserProfilePage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Phone
-                  </label>
-                  {isEditing ? (
-                    <input
-                      type="tel"
-                      value={profileData.phone}
-                      onChange={(e) => handleInputChange("phone", e.target.value)}
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-800 focus:border-transparent"
-                    />
-                  ) : (
-                    <p className="text-gray-900">{profileData.phone}</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Location
                   </label>
                   {isEditing ? (
@@ -435,69 +496,7 @@ export default function UserProfilePage() {
               </div>
             </div>
 
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Quick Actions
-              </h3>
-              <div className="space-y-3">
-                <button className="w-full flex items-center justify-between p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                  <div className="flex items-center gap-3">
-                    <Settings className="h-5 w-5" />
-                    Account Settings
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="w-full flex items-center justify-between p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                  <div className="flex items-center gap-3">
-                    <Bell className="h-5 w-5" />
-                    Notifications
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="w-full flex items-center justify-between p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                  <div className="flex items-center gap-3">
-                    <Shield className="h-5 w-5" />
-                    Privacy & Security
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-                <button className="w-full flex items-center justify-between p-3 text-left text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200">
-                  <div className="flex items-center gap-3">
-                    <Globe className="h-5 w-5" />
-                    Language Preferences
-                  </div>
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
 
-            {/* Learning Goals */}
-            <div className="bg-white rounded-lg shadow-lg border border-gray-200 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Learning Goals
-              </h3>
-              <div className="space-y-4">
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">Weekly Practice</span>
-                    <span className="text-sm text-gray-600">5/7 days</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-gray-800 to-black h-2 rounded-full w-5/7" style={{width: '71%'}}></div>
-                  </div>
-                </div>
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium text-gray-900">Monthly Signs</span>
-                    <span className="text-sm text-gray-600">28/30 signs</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-gradient-to-r from-gray-800 to-black h-2 rounded-full" style={{width: '93%'}}></div>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>

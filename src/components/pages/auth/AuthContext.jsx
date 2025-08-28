@@ -133,8 +133,15 @@ export const AuthProvider = ({ children }) => {
         const userData = await response.json();
         const updatedUser = {
           ...user,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          email: userData.email,
+          profile: userData.profile,
+          bio: userData.bio,
+          location: userData.location,
           isProMember: userData.isProMember,
           proMembershipExpiry: userData.proMembershipExpiry,
+          status: userData.status,
         };
         
         setUser(updatedUser);

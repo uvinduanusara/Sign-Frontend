@@ -1,34 +1,47 @@
-import React, { useState } from 'react';
-import { Crown, Check, Star, Zap } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { Crown, Check, Star, Zap, AlertCircle } from 'lucide-react';
 import { useAuth } from './auth/AuthContext';
 import apiService from './services/api';
 
 const PurchaseMembership = () => {
   const { user, isProMember, refreshUserData } = useAuth();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+  const [cancelled, setCancelled] = useState(false);
 
-  const handlePurchase = async (duration) => {
+  useEffect(() => {
+    // Check if user came back from cancelled Stripe checkout
+    if (searchParams.get('cancelled') === 'true') {
+      setCancelled(true);
+      // Clear the URL parameter after 5 seconds
+      setTimeout(() => {
+        setCancelled(false);
+        window.history.replaceState({}, document.title, '/purchase-membership');
+      }, 5000);
+    }
+  }, [searchParams]);
+
+  const handlePurchase = async () => {
     try {
       setLoading(true);
       setError('');
       
-      await apiService.purchaseProMembership({ duration });
+      // Create Stripe checkout session
+      const response = await apiService.createStripeCheckoutSession();
       
-      // Refresh user data to update pro status immediately
-      await refreshUserData();
-      
-      setSuccess(true);
-      // Navigate back to home after success
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 2000);
+      if (response.success && response.checkoutUrl) {
+        // Redirect to Stripe checkout
+        window.location.href = response.checkoutUrl;
+      } else {
+        throw new Error(response.message || 'Failed to create checkout session');
+      }
       
     } catch (error) {
       console.error('Purchase failed:', error);
-      setError(error.message || 'Failed to purchase membership');
-    } finally {
+      setError(error.message || 'Failed to create payment session');
       setLoading(false);
     }
   };
@@ -115,73 +128,57 @@ const PurchaseMembership = () => {
         </div>
 
         {/* Pricing */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white p-8 rounded-lg shadow-lg border border-gray-200">
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-lg shadow-xl border-2 border-yellow-400">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Monthly Pro</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-1">$9.99</div>
-              <p className="text-gray-600">per month</p>
+              <h3 className="text-3xl font-bold text-white mb-4">Pro Subscription</h3>
+              <div className="text-5xl font-bold text-white mb-2">
+                Premium Access
+              </div>
+              <p className="text-gray-300 text-lg">Unlock all features and learning materials</p>
             </div>
-            <ul className="space-y-3 mb-6">
+            <ul className="space-y-4 mb-8">
               <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Access to Learn section</span>
+                <Check className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-gray-200 text-lg">Full access to Learn section with structured lessons</span>
               </li>
               <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Premium learning materials</span>
+                <Check className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-gray-200 text-lg">Premium learning materials and advanced content</span>
               </li>
               <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-500 mr-3" />
-                <span className="text-gray-700">Priority support</span>
+                <Check className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-gray-200 text-lg">Priority customer support</span>
+              </li>
+              <li className="flex items-center">
+                <Check className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-gray-200 text-lg">Exclusive Pro member badge and benefits</span>
+              </li>
+              <li className="flex items-center">
+                <Check className="w-6 h-6 text-green-400 mr-3 flex-shrink-0" />
+                <span className="text-gray-200 text-lg">Cancel anytime from your account settings</span>
               </li>
             </ul>
             <button
-              onClick={() => handlePurchase(30)}
+              onClick={handlePurchase}
               disabled={loading}
-              className="w-full bg-gray-800 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-900 transition-colors disabled:opacity-50"
+              className="w-full bg-yellow-400 text-black py-4 px-8 rounded-lg font-bold text-lg hover:bg-yellow-300 transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? 'Processing...' : 'Get Monthly Pro'}
+              {loading ? (
+                <span className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-black mr-3"></div>
+                  Processing...
+                </span>
+              ) : (
+                <span className="flex items-center justify-center">
+                  <Crown className="w-6 h-6 mr-2" />
+                  Subscribe to Pro
+                </span>
+              )}
             </button>
-          </div>
-
-          <div className="bg-gradient-to-br from-gray-900 to-black p-8 rounded-lg shadow-xl border-2 border-yellow-400 relative">
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <span className="bg-yellow-400 text-black px-4 py-1 rounded-full text-sm font-bold">
-                BEST VALUE
-              </span>
-            </div>
-            <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">Yearly Pro</h3>
-              <div className="text-4xl font-bold text-white mb-1">$99.99</div>
-              <p className="text-gray-300">per year</p>
-              <p className="text-yellow-400 text-sm mt-1">Save $20!</p>
-            </div>
-            <ul className="space-y-3 mb-6">
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-400 mr-3" />
-                <span className="text-gray-200">Access to Learn section</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-400 mr-3" />
-                <span className="text-gray-200">Premium learning materials</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-400 mr-3" />
-                <span className="text-gray-200">Priority support</span>
-              </li>
-              <li className="flex items-center">
-                <Check className="w-5 h-5 text-green-400 mr-3" />
-                <span className="text-gray-200">2 months free!</span>
-              </li>
-            </ul>
-            <button
-              onClick={() => handlePurchase(365)}
-              disabled={loading}
-              className="w-full bg-yellow-400 text-black py-3 px-6 rounded-lg font-semibold hover:bg-yellow-300 transition-colors disabled:opacity-50"
-            >
-              {loading ? 'Processing...' : 'Get Yearly Pro'}
-            </button>
+            <p className="text-center text-sm text-gray-400 mt-4">
+              You'll be redirected to Stripe for secure payment processing
+            </p>
           </div>
         </div>
 
@@ -191,9 +188,24 @@ const PurchaseMembership = () => {
           </div>
         )}
 
+        {cancelled && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-center mb-6">
+            <div className="flex items-center justify-center mb-2">
+              <AlertCircle className="w-5 h-5 text-yellow-600 mr-2" />
+              <p className="text-yellow-800 font-semibold">Payment Cancelled</p>
+            </div>
+            <p className="text-yellow-700">
+              No charges were made to your account. You can try again when you're ready.
+            </p>
+          </div>
+        )}
+
         <div className="text-center text-sm text-gray-500">
           <p>
-            Note: This is a demo purchase system. In production, this would integrate with a real payment processor.
+            Secure payments powered by Stripe. Your card information is encrypted and secure.
+          </p>
+          <p className="mt-1">
+            Cancel anytime from your account settings.
           </p>
         </div>
       </div>

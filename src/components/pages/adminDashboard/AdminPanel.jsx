@@ -8,6 +8,7 @@ import UsersModule from "./modules/UsersModule";
 import MaterialsModule from "./modules/MaterialsModule";
 import PracticeMaterialsModule from "./modules/PracticeMaterialsModule";
 import ReviewsModule from "./modules/ReviewsModule";
+import { NotificationProvider } from "./NotificationContext";
 import apiService from "../../pages/services/api.js";
 
 export default function AdminPanel() {
@@ -368,24 +369,26 @@ export default function AdminPanel() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <AdminSidebar 
-        sidebarOpen={sidebarOpen}
-        toggleSidebar={toggleSidebar}
-        activeModule={activeModule}
-        setActiveModule={setActiveModule}
-      />
-      
-      <div className="flex-1 overflow-auto">
-        <AdminHeader 
+    <NotificationProvider>
+      <div className="flex h-screen bg-gray-100">
+        <AdminSidebar 
+          sidebarOpen={sidebarOpen}
+          toggleSidebar={toggleSidebar}
           activeModule={activeModule}
-          user={user}
+          setActiveModule={setActiveModule}
         />
         
-        <main className="p-6">
-          {renderContent()}
-        </main>
+        <div className="flex-1 overflow-auto">
+          <AdminHeader 
+            activeModule={activeModule}
+            user={user}
+          />
+          
+          <main className="p-6">
+            {renderContent()}
+          </main>
+        </div>
       </div>
-    </div>
+    </NotificationProvider>
   );
 }

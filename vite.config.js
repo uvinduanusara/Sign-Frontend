@@ -10,7 +10,14 @@ export default defineConfig({
   server: {
     port: 3001,
     host: true,
-    open: true
+    open: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
   },
   preview: {
     port: 3001,

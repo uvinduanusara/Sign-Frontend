@@ -207,7 +207,7 @@ export default function MaterialsModule({
       }
 
       // Debug FormData contents (only in development)
-      if (process.env.NODE_ENV === 'development') {
+      if (import.meta.env.NODE_ENV === 'development') {
         for (let pair of submitData.entries()) {
           console.log('FormData entry:', pair[0], pair[1]);
         }

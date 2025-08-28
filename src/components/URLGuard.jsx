@@ -10,7 +10,6 @@ const ROLE_RESTRICTIONS = {
       /^\/learn/,
       /^\/practice/,
       /^\/detect/,
-      /^\/community/,
       /^\/userprofile/,
     ],
     allowed: [
@@ -25,7 +24,6 @@ const ROLE_RESTRICTIONS = {
       /^\/learn/,
       /^\/practice/,
       /^\/detect/,
-      /^\/community/,
       /^\/userprofile/,
     ],
     allowed: [
@@ -43,7 +41,6 @@ const ROLE_RESTRICTIONS = {
       /^\/learn/,
       /^\/practice/,
       /^\/detect/,
-      /^\/community/,
       /^\/userprofile/,
       /^\/login/,
       /^\/signup/,
