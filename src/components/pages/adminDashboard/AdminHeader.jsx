@@ -2,8 +2,15 @@ import React, { useState, useRef, useEffect } from "react";
 import { Bell, X, Check, CheckCheck, Trash2 } from "lucide-react";
 import { useNotifications } from "./NotificationContext";
 
-export default function AdminHeader({ activeModule, user }) {
-  const { notifications, unreadCount, markAsRead, markAllAsRead, removeNotification, clearAllNotifications } = useNotifications();
+export default function AdminHeader({ activeModule }) {
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    removeNotification,
+    clearAllNotifications,
+  } = useNotifications();
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -15,15 +22,15 @@ export default function AdminHeader({ activeModule, user }) {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const formatTimeAgo = (timestamp) => {
     const now = new Date();
     const diff = Math.floor((now - new Date(timestamp)) / 1000);
-    
-    if (diff < 60) return 'just now';
+
+    if (diff < 60) return "just now";
     if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
     if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
     return `${Math.floor(diff / 86400)}d ago`;
@@ -51,14 +58,14 @@ export default function AdminHeader({ activeModule, user }) {
         </h1>
         <div className="flex items-center space-x-4">
           <div className="relative" ref={dropdownRef}>
-            <button 
+            <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 text-gray-600 hover:text-gray-900 transition-colors"
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
                 <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                  {unreadCount > 9 ? '9+' : unreadCount}
+                  {unreadCount > 9 ? "9+" : unreadCount}
                 </span>
               )}
             </button>
@@ -67,7 +74,9 @@ export default function AdminHeader({ activeModule, user }) {
               <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                 <div className="p-4 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Notifications
+                    </h3>
                     <div className="flex gap-2">
                       {unreadCount > 0 && (
                         <button
@@ -110,9 +119,9 @@ export default function AdminHeader({ activeModule, user }) {
                           key={notification.id}
                           onClick={() => handleNotificationClick(notification)}
                           className={`p-4 cursor-pointer transition-colors ${
-                            !notification.read 
-                              ? 'bg-blue-50 hover:bg-blue-100' 
-                              : 'hover:bg-gray-50'
+                            !notification.read
+                              ? "bg-blue-50 hover:bg-blue-100"
+                              : "hover:bg-gray-50"
                           }`}
                         >
                           <div className="flex items-start justify-between">
@@ -149,15 +158,6 @@ export default function AdminHeader({ activeModule, user }) {
                 </div>
               </div>
             )}
-          </div>
-          
-          <div className="flex items-center">
-            <div className="h-8 w-8 rounded-full bg-gradient-to-r from-gray-800 to-black flex items-center justify-center text-white text-sm font-bold">
-              {user?.firstName?.[0]?.toUpperCase() || "A"}
-            </div>
-            <span className="ml-2 text-gray-700">
-              {user?.firstName || "Admin"}
-            </span>
           </div>
         </div>
       </div>

@@ -96,7 +96,7 @@ export default function Signup() {
       const apiData = {
         email: formData.email.trim(),
         password: formData.password,
-        roleName: "customer",
+        roleName: "user",
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
       };

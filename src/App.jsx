@@ -13,7 +13,7 @@ import PurchaseMembership from "./components/pages/PurchaseMembership";
 import MembershipSuccess from "./components/pages/MembershipSuccess";
 import AdminPanel from "./components/pages/adminDashboard/AdminPanel";
 import ReviewPage from "./components/pages/ReviewPage";
-import ProtectedRoute, { AdminRoute, UserRoute, PublicRoute, PublicNonAdminRoute } from "./components/ProtectedRoute";
+import { AdminRoute, UserRoute, PublicRoute, PublicNonAdminRoute } from "./components/ProtectedRoute";
 import URLGuard from "./components/URLGuard";
 
 function App() {

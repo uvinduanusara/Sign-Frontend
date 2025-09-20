@@ -79,42 +79,42 @@ export default function URLGuard({ children }) {
   return children;
 }
 
-// Hook for programmatic URL blocking
-export function useURLGuard() {
-  const { user } = useAuth();
-  const navigate = useNavigate();
+// // Hook for programmatic URL blocking
+// export function useURLGuard() {
+//   const { user } = useAuth();
+//   const navigate = useNavigate();
 
-  const checkURLAccess = (targetPath) => {
-    if (!user) return false;
+//   const checkURLAccess = (targetPath) => {
+//     if (!user) return false;
 
-    const userRole = user.roleName;
-    const restrictions = ROLE_RESTRICTIONS[userRole];
+//     const userRole = user.roleName;
+//     const restrictions = ROLE_RESTRICTIONS[userRole];
 
-    if (!restrictions) return true;
+//     if (!restrictions) return true;
 
-    const isBlocked = restrictions.blocked.some(pattern => pattern.test(targetPath));
-    const isAllowed = restrictions.allowed.some(pattern => pattern.test(targetPath));
+//     const isBlocked = restrictions.blocked.some(pattern => pattern.test(targetPath));
+//     const isAllowed = restrictions.allowed.some(pattern => pattern.test(targetPath));
 
-    if (isBlocked && !isAllowed) {
-      toast.error(`Access denied: ${userRole} users cannot access ${targetPath}`);
-      return false;
-    }
+//     if (isBlocked && !isAllowed) {
+//       toast.error(`Access denied: ${userRole} users cannot access ${targetPath}`);
+//       return false;
+//     }
 
-    return true;
-  };
+//     return true;
+//   };
 
-  const navigateWithGuard = (targetPath) => {
-    if (checkURLAccess(targetPath)) {
-      navigate(targetPath);
-    } else {
-      // Redirect to appropriate default page
-      const redirectPath = (user?.roleName === "admin" || user?.roleName === "instructor") ? "/admin" : "/";
-      navigate(redirectPath, { replace: true });
-    }
-  };
+//   const navigateWithGuard = (targetPath) => {
+//     if (checkURLAccess(targetPath)) {
+//       navigate(targetPath);
+//     } else {
+//       // Redirect to appropriate default page
+//       const redirectPath = (user?.roleName === "admin" || user?.roleName === "instructor") ? "/admin" : "/";
+//       navigate(redirectPath, { replace: true });
+//     }
+//   };
 
-  return {
-    checkURLAccess,
-    navigateWithGuard
-  };
-}
+//   return {
+//     checkURLAccess,
+//     navigateWithGuard
+//   };
+// }
